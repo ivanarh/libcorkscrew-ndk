@@ -21,9 +21,9 @@
 #define LOG_TAG "Corkscrew"
 //#define LOG_NDEBUG 0
 
-#include "../backtrace-arch.h"
+#include <corkscrew/backtrace-arch.h>
 #include "../backtrace-helper.h"
-#include "../ptrace-arch.h"
+#include <corkscrew/ptrace-arch.h>
 #include <corkscrew/ptrace.h>
 #include "dwarf.h"
 
@@ -42,7 +42,7 @@
 
 // Bionic offers the Linux kernel headers.
 #include <asm/sigcontext.h>
-#include <asm/ucontext.h>
+#include <ucontext.h>
 typedef struct ucontext ucontext_t;
 
 #else /* __BIONIC_HAVE_UCONTEXT_T */

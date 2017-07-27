@@ -21,7 +21,7 @@
 #define LOG_TAG "Corkscrew"
 //#define LOG_NDEBUG 0
 
-#include "../backtrace-arch.h"
+#include <corkscrew/backtrace-arch.h>
 #include "../backtrace-helper.h"
 #include <corkscrew/ptrace.h>
 

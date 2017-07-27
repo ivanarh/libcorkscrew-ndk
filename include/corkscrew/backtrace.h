@@ -58,16 +58,6 @@ typedef struct {
 ssize_t unwind_backtrace(backtrace_frame_t* backtrace, size_t ignore_depth, size_t max_depth);
 
 /*
- * Unwinds the call stack for a thread within this process.
- * Populates the backtrace array with the program counters from the call stack.
- * Returns the number of frames collected, or -1 if an error occurred.
- *
- * The task is briefly suspended while the backtrace is being collected.
- */
-ssize_t unwind_backtrace_thread(pid_t tid, backtrace_frame_t* backtrace,
-        size_t ignore_depth, size_t max_depth);
-
-/*
  * Unwinds the call stack of a task within a remote process using ptrace().
  * Populates the backtrace array with the program counters from the call stack.
  * Returns the number of frames collected, or -1 if an error occurred.

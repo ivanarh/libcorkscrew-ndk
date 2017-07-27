@@ -17,10 +17,10 @@
 #define LOG_TAG "Corkscrew"
 //#define LOG_NDEBUG 0
 
-#include "../ptrace-arch.h"
+#include <corkscrew/ptrace-arch.h>
 
 #include <stddef.h>
-#include <elf.h>
+#include <linux/elf.h>
 #include <cutils/log.h>
 
 static void load_eh_frame_hdr(pid_t pid, map_info_t* mi, uintptr_t *eh_frame_hdr) {

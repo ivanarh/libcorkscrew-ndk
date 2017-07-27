@@ -17,7 +17,7 @@
 #define LOG_TAG "Corkscrew"
 //#define LOG_NDEBUG 0
 
-#include "ptrace-arch.h"
+#include <corkscrew/ptrace-arch.h>
 #include <corkscrew/ptrace.h>
 
 #include <errno.h>
