@@ -38,6 +38,10 @@ ssize_t unwind_backtrace_signal_arch(siginfo_t* siginfo, void* sigcontext,
 ssize_t unwind_backtrace_ptrace_arch(pid_t tid, const ptrace_context_t* context,
         backtrace_frame_t* backtrace, size_t ignore_depth, size_t max_depth);
 
+ssize_t unwind_backtrace_ptrace_context_arch(pid_t tid, void *sigcontext,
+        const ptrace_context_t* context, backtrace_frame_t* backtrace, size_t ignore_depth,
+        size_t max_depth);
+
 #ifdef __cplusplus
 }
 #endif

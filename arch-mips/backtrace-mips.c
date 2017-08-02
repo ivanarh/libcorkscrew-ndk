@@ -195,3 +195,20 @@ ssize_t unwind_backtrace_ptrace_arch(pid_t tid, const ptrace_context_t* context,
     return unwind_backtrace_common(&memory, context->map_info_list,
             &state, backtrace, ignore_depth, max_depth);
 }
+
+ssize_t unwind_backtrace_ptrace_context_arch(pid_t tid, void *sigcontext,
+        const ptrace_context_t* context, backtrace_frame_t* backtrace, size_t ignore_depth,
+        size_t max_depth)
+{
+    const ucontext_t* uc = (const ucontext_t*)sigcontext;
+
+    unwind_state_t state;
+    state.sp = uc->sp;
+    state.pc = uc->pc;
+    state.ra = uc->ra;
+
+    memory_t memory;
+    init_memory_ptrace(&memory, tid);
+    return unwind_backtrace_common(&memory, context->map_info_list,
+                                   &state, backtrace, ignore_depth, max_depth);
+}
