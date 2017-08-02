@@ -599,3 +599,33 @@ ssize_t unwind_backtrace_ptrace_arch(pid_t tid, const ptrace_context_t* context,
     return unwind_backtrace_common(&memory, context->map_info_list, &state,
             backtrace, ignore_depth, max_depth);
 }
+
+ssize_t unwind_backtrace_ptrace_context_arch(pid_t tid, void *sigcontext,
+        const ptrace_context_t* context, backtrace_frame_t* backtrace, size_t ignore_depth,
+        size_t max_depth) {
+    const ucontext_t* uc = (const ucontext_t*)sigcontext;
+
+    unwind_state_t state;
+
+    state.gregs[0] = uc->uc_mcontext.arm_r0;
+    state.gregs[1] = uc->uc_mcontext.arm_r1;
+    state.gregs[2] = uc->uc_mcontext.arm_r2;
+    state.gregs[3] = uc->uc_mcontext.arm_r3;
+    state.gregs[4] = uc->uc_mcontext.arm_r4;
+    state.gregs[5] = uc->uc_mcontext.arm_r5;
+    state.gregs[6] = uc->uc_mcontext.arm_r6;
+    state.gregs[7] = uc->uc_mcontext.arm_r7;
+    state.gregs[8] = uc->uc_mcontext.arm_r8;
+    state.gregs[9] = uc->uc_mcontext.arm_r9;
+    state.gregs[10] = uc->uc_mcontext.arm_r10;
+    state.gregs[11] = uc->uc_mcontext.arm_fp;
+    state.gregs[12] = uc->uc_mcontext.arm_ip;
+    state.gregs[13] = uc->uc_mcontext.arm_sp;
+    state.gregs[14] = uc->uc_mcontext.arm_lr;
+    state.gregs[15] = uc->uc_mcontext.arm_pc;
+
+    memory_t memory;
+    init_memory_ptrace(&memory, tid);
+    return unwind_backtrace_common(&memory, context->map_info_list, &state,
+                                   backtrace, ignore_depth, max_depth);
+}

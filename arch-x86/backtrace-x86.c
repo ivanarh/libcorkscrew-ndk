@@ -861,3 +861,29 @@ ssize_t unwind_backtrace_ptrace_arch(pid_t tid, const ptrace_context_t* context,
             &state, backtrace, ignore_depth, max_depth);
 #endif
 }
+
+ssize_t unwind_backtrace_ptrace_context_arch(pid_t tid, void *sigcontext,
+        const ptrace_context_t* context, backtrace_frame_t* backtrace, size_t ignore_depth,
+        size_t max_depth) {
+#if defined(__APPLE__)
+    return -1;
+#else
+    const ucontext_t* uc = (const ucontext_t*)sigcontext;
+
+    unwind_state_t state;
+#if defined(__APPLE__)
+    state.reg[DWARF_EBP] = uc->uc_mcontext->__ss.__ebp;
+    state.reg[DWARF_ESP] = uc->uc_mcontext->__ss.__esp;
+    state.reg[DWARF_EIP] = uc->uc_mcontext->__ss.__eip;
+#else
+    state.reg[DWARF_EBP] = uc->uc_mcontext.gregs[REG_EBP];
+    state.reg[DWARF_ESP] = uc->uc_mcontext.gregs[REG_ESP];
+    state.reg[DWARF_EIP] = uc->uc_mcontext.gregs[REG_EIP];
+#endif
+
+    memory_t memory;
+    init_memory_ptrace(&memory, tid);
+    return unwind_backtrace_common(&memory, context->map_info_list,
+                                   &state, backtrace, ignore_depth, max_depth);
+#endif
+}
