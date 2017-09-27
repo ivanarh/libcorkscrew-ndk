@@ -19,7 +19,7 @@
 
 #include <corkscrew/ptrace-arch.h>
 
-#include <sys/exec_elf.h>
+#include <elf.h>
 #include <cutils/log.h>
 
 #ifndef PT_ARM_EXIDX
