@@ -132,13 +132,12 @@ static map_info_t* parse_maps_line(const char* line)
 }
 
 map_info_t* load_map_info_list(pid_t tid) {
-    char path[PATH_MAX];
     char line[1024];
     FILE* fp;
     map_info_t* milist = NULL;
 
-    snprintf(path, PATH_MAX, "/proc/%d/maps", tid);
-    fp = fopen(path, "r");
+    snprintf(line, sizeof(line), "/proc/%d/maps", tid);
+    fp = fopen(line, "r");
     if (fp) {
         while(fgets(line, sizeof(line), fp)) {
             map_info_t* mi = parse_maps_line(line);
