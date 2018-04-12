@@ -32,5 +32,5 @@ char* demangle_symbol_name(const char* name) {
     }
 #endif
     // __cxa_demangle handles NULL by returning NULL
-    return __cxa_demangle(name, 0, 0, 0);
+    return NULL;//__cxa_demangle(name, 0, 0, 0);
 }

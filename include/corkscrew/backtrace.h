@@ -47,7 +47,7 @@ typedef struct {
                                     library or 0 if the library is unknown */
     char* map_name;              /* executable or library name, or NULL if unknown */
     char* symbol_name;           /* symbol name, or NULL if unknown */
-    char* demangled_name;        /* demangled symbol name, or NULL if unknown */
+//    char* demangled_name;        /* demangled symbol name, or NULL if unknown */
 } backtrace_symbol_t;
 
 /*
