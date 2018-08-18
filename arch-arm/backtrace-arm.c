@@ -277,24 +277,7 @@ static bool try_pop_registers(const memory_t* memory, unwind_state_t* state, uin
  * the call frame is unwound and the PC register points to the call site.
  */
 static bool execute_personality_routine(const memory_t* memory,
-        unwind_state_t* state, byte_stream_t* stream, int pr_index) {
-    size_t size;
-    switch (pr_index) {
-    case 0: // Personality routine #0, short frame, descriptors have 16-bit scope.
-        size = 3;
-        break;
-    case 1: // Personality routine #1, long frame, descriptors have 16-bit scope.
-    case 2: { // Personality routine #2, long frame, descriptors have 32-bit scope.
-        uint8_t size_byte;
-        if (!try_next_byte(memory, stream, &size_byte)) {
-            return false;
-        }
-        size = (uint32_t)size_byte * sizeof(uint32_t) + 2;
-        break;
-    }
-    default: // Unknown personality routine.  Stop here.
-        return false;
-    }
+        unwind_state_t* state, byte_stream_t* stream, size_t size) {
 
     bool pc_was_set = false;
     while (size--) {
@@ -519,15 +502,46 @@ static ssize_t unwind_backtrace_common(const memory_t* memory,
         if (!try_next_byte(memory, &stream, &pr)) {
             break;
         }
-        if ((pr & 0xf0) != 0x80) {
-            // The first word is a place-relative pointer to a generic personality
-            // routine function.  We don't support invoking such functions, so stop here.
-            break;
+
+        // Size of unwinding instructions.
+        size_t size;
+
+        if ((pr & 0xf0) == 0x80) {
+            // Compact model, exidx entry contains just an index of personality routine.
+            const int pr_index = pr & 0x0f;
+            if (pr_index == 0) {
+                // Personality routine #0, short frame, descriptors have 16-bit scope.
+                // Contains only  3 unwinding instructions in bits 16-23, 8-15, and 0-7 of the first word.
+                size = 3;
+            } else if (pr_index == 1 || pr_index == 2) {
+                // Personality routine #1, long frame, descriptors have 16-bit scope.
+                // Personality routine #2, long frame, descriptors have 32-bit scope.
+                // Bits 16-23 contain a count N of the number of additional 4-byte words that contain
+                // unwinding instructions. The sequence of unwinding instructions is packed into bits
+                // 8-15, 0-7, and the following N words.
+                uint8_t size_byte;
+                if (!try_next_byte(memory, &stream, &size_byte)) {
+                    break;
+                }
+                size = (uint32_t)size_byte * sizeof(uint32_t) + 2;
+            } else {
+                break;
+            }
+        } else {
+            // Full model, exidx entry contains a full pointer to personality routine.
+            // Assuming frame unwinding instructions follow this pointer and have a similar format as
+            // for 1 or 2 standard routines with size in the first byte and 3 necessary instructions.
+            stream.ptr = handler + 4;
+            uint8_t size_byte;
+            if (!try_next_byte(memory, &stream, &size_byte)) {
+                break;
+            }
+            size = (uint32_t)size_byte * sizeof(uint32_t) + 3;
         }
 
         // The first byte indicates the personality routine to execute.
         // Following bytes provide instructions to the personality routine.
-        if (!execute_personality_routine(memory, state, &stream, pr & 0x0f)) {
+        if (!execute_personality_routine(memory, state, &stream, size)) {
             break;
         }
         if (frame && state->gregs[R_SP] > frame->stack_top) {
