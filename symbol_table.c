@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <cutils/log.h>
+#include <unistd.h>
 
 #if defined(__APPLE__)
 #else
